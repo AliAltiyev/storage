@@ -1,13 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storage/enums/colors.dart';
 import 'package:storage/enums/sex.dart';
+import 'package:storage/service/shared_pref_service.dart';
 
-const userNameKey = 'usernameKey';
-const radioListTileKey = 'radioListTileKey';
-const colorsKey = 'colorsKey';
-const switchListTileKey = 'switchListTileKey';
+import 'model/user_settings.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,18 +34,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var userNameTextController = TextEditingController();
-  var radioListTileValue = Sex.FEMALE;
-  var customColors = <String>[];
-  bool switchTileState = false;
+  final _userName = TextEditingController();
+  var _userSex = Sex.FEMALE;
+  var _customColors = <String>[];
+  bool _darkTheme = false;
   bool _lights = false;
+  final service = SharedPrefService();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getUserSettings();
-    setState(() {});
+    getDataFromSharedPref();
   }
 
   @override
@@ -62,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
-                  controller: userNameTextController,
+                  controller: _userName,
                   decoration: const InputDecoration(label: Text("Enter name")),
                 ),
               ),
@@ -73,13 +70,13 @@ class _MyHomePageState extends State<MyHomePage> {
               checkBoxTile(
                   title: "BLUE",
                   color: CustomColors.BLUE,
-                  colors: customColors),
+                  colors: _customColors),
               checkBoxTile(
-                  title: "RED", color: CustomColors.RED, colors: customColors),
+                  title: "RED", color: CustomColors.RED, colors: _customColors),
               checkBoxTile(
                   title: "WHITE",
                   color: CustomColors.WHITE,
-                  colors: customColors),
+                  colors: _customColors),
               switchTile(title: 'Dark Theme', icon: Icons.access_alarm_rounded),
               SwitchListTile(
                 title: const Text('Lights'),
@@ -92,7 +89,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 secondary: const Icon(Icons.lightbulb_outline),
               ),
               ElevatedButton(
-                  onPressed: () => saveUserSettings(),
+                  onPressed: () {
+                    final model = UserSettingsModel(
+                        sex: _userSex,
+                        color: _customColors,
+                        darkTheme: _darkTheme,
+                        light: _lights,
+                        userName: _userName.text);
+
+                    service.saveUserSettings(model);
+                    setState(() {});
+                  },
                   child: const Text('Save'))
             ])
           ],
@@ -101,16 +108,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void saveUserSettings() async {
-    final sharedPref = await SharedPreferences.getInstance();
-    final c = sharedPref.setString(userNameKey, userNameTextController.text);
-    final d = sharedPref.setInt(radioListTileKey, radioListTileValue.index);
-    debugPrint(radioListTileValue.index.toString());
-
-    final g = sharedPref.setBool(switchListTileKey, switchTileState);
-    final a = sharedPref.setStringList(colorsKey, customColors);
-    debugPrint('${a.toString()} + $c + $d + $g');
-  }
 
   Widget switchTile({required String title, required IconData icon}) {
     return SwitchListTile(
@@ -118,10 +115,10 @@ class _MyHomePageState extends State<MyHomePage> {
         activeColor: Colors.deepPurple,
         title: Text(title),
         secondary: Icon(icon),
-        value: switchTileState,
+        value: _darkTheme,
         onChanged: (bool value) {
           setState(() {
-            switchTileState = value;
+            _darkTheme = value;
           });
         });
   }
@@ -136,9 +133,9 @@ class _MyHomePageState extends State<MyHomePage> {
         onChanged: (bool? state) {
           setState(() {
             if (state == true) {
-              customColors.add(describeEnum(color));
+              _customColors.add(describeEnum(color));
             } else {
-              customColors.remove(describeEnum(color));
+              _customColors.remove(describeEnum(color));
             }
             debugPrint(colors.toString());
           });
@@ -154,21 +151,24 @@ class _MyHomePageState extends State<MyHomePage> {
         contentPadding: const EdgeInsets.all(8),
         title: Text(title),
         value: sex,
-        groupValue: radioListTileValue,
+        groupValue: _userSex,
         onChanged: (Sex? value) {
           setState(() {
-            radioListTileValue = value!;
+            _userSex = value!;
             debugPrint("selected");
           });
         });
   }
 
-  void getUserSettings() async {
-    final sharedPref = await SharedPreferences.getInstance();
-    userNameTextController.text = sharedPref.getString(userNameKey) ?? '';
-    radioListTileValue = Sex.values[sharedPref.getInt(radioListTileKey) ?? 0];
-    customColors = sharedPref.getStringList(colorsKey) ?? [];
-    switchTileState = sharedPref.getBool(switchListTileKey) ?? false;
-    setState(() {});
+  void getDataFromSharedPref() async {
+    final model = await service.getUserSettings();
+
+    setState(() {
+      _userName.text = model.userName;
+      _userSex = model.sex;
+      _darkTheme = model.darkTheme;
+      _customColors = model.color;
+      _lights = model.light;
+    });
   }
 }
