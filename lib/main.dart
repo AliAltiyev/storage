@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:storage/enums/colors.dart';
 import 'package:storage/enums/sex.dart';
+import 'package:storage/files_page.dart';
 import 'package:storage/service/shared_pref_service.dart';
 
 import 'model/user_settings.dart';
@@ -99,6 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                     service.saveUserSettings(model);
                     setState(() {});
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const FilesPage()));
                   },
                   child: const Text('Save'))
             ])
