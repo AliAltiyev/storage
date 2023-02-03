@@ -1,5 +1,7 @@
 import 'package:hive/hive.dart';
+
 import '../enums/sex.dart';
+
 part 'user_settings.g.dart';
 
 @HiveType(typeId: 0)
