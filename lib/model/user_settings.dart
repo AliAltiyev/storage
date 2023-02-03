@@ -13,4 +13,9 @@ class UserSettingsModel {
       required this.color,
       required this.darkTheme,
       required this.light});
+
+  @override
+  String toString() {
+    return 'UserSettingsModel{userName: $userName, sex: $sex, color: $color, darkTheme: $darkTheme, light: $light}';
+  }
 }

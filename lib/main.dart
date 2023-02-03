@@ -1,13 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:storage/enums/colors.dart';
 import 'package:storage/enums/sex.dart';
 import 'package:storage/files_page.dart';
+import 'package:storage/hive_page.dart';
 import 'package:storage/service/shared_pref_service.dart';
 
 import 'model/user_settings.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
   runApp(const MyApp());
 }
 
@@ -88,23 +93,30 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
                 secondary: const Icon(Icons.lightbulb_outline),
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    final model = UserSettingsModel(
-                        sex: _userSex,
-                        color: _customColors,
-                        darkTheme: _darkTheme,
-                        light: _lights,
-                        userName: _userName.text);
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      final model = UserSettingsModel(
+                          sex: _userSex,
+                          color: _customColors,
+                          darkTheme: _darkTheme,
+                          light: _lights,
+                          userName: _userName.text);
 
-                    service.saveUserSettings(model);
-                    setState(() {});
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const FilesPage()));
-                  },
-                  child: const Text('Save'))
-            ])
+                      service.saveUserSettings(model);
+                      setState(() {});
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const FilesPage()));
+                    },
+                    child: const Text('Save')),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => const HivePage()));
+                    },
+                    child: const Text('Go to HivePage'))
+              ],
+            )
           ],
         ),
       ),
