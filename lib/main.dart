@@ -13,6 +13,9 @@ import 'model/user_settings.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  Hive.registerAdapter(UserSettingsModelAdapter());
+  Hive.registerAdapter(SexAdapter());
+
   runApp(const MyApp());
 }
 
@@ -61,38 +64,44 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: ListView(
           children: [
-            Column(children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _userName,
-                  decoration: const InputDecoration(label: Text("Enter name")),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _userName,
+                    decoration:
+                        const InputDecoration(label: Text("Enter name")),
+                  ),
                 ),
-              ),
-              radioListTile(
-                  title: describeEnum(Sex.FEMALE).toString(), sex: Sex.FEMALE),
-              radioListTile(
-                  title: describeEnum(Sex.MALE).toString(), sex: Sex.MALE),
-              checkBoxTile(
-                  title: "BLUE",
-                  color: CustomColors.BLUE,
-                  colors: _customColors),
-              checkBoxTile(
-                  title: "RED", color: CustomColors.RED, colors: _customColors),
-              checkBoxTile(
-                  title: "WHITE",
-                  color: CustomColors.WHITE,
-                  colors: _customColors),
-              switchTile(title: 'Dark Theme', icon: Icons.access_alarm_rounded),
-              SwitchListTile(
-                title: const Text('Lights'),
-                value: _lights,
-                onChanged: (bool value) {
-                  setState(() {
-                    _lights = value;
-                  });
-                },
-                secondary: const Icon(Icons.lightbulb_outline),
+                radioListTile(
+                    title: describeEnum(Sex.FEMALE).toString(),
+                    sex: Sex.FEMALE),
+                radioListTile(
+                    title: describeEnum(Sex.MALE).toString(), sex: Sex.MALE),
+                checkBoxTile(
+                    title: "BLUE",
+                    color: CustomColors.BLUE,
+                    colors: _customColors),
+                checkBoxTile(
+                    title: "RED",
+                    color: CustomColors.RED,
+                    colors: _customColors),
+                checkBoxTile(
+                    title: "WHITE",
+                    color: CustomColors.WHITE,
+                    colors: _customColors),
+                switchTile(
+                    title: 'Dark Theme', icon: Icons.access_alarm_rounded),
+                SwitchListTile(
+                  title: const Text('Lights'),
+                  value: _lights,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _lights = value;
+                    });
+                  },
+                  secondary: const Icon(Icons.lightbulb_outline),
                 ),
                 ElevatedButton(
                     onPressed: () {
@@ -122,7 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
 
   Widget switchTile({required String title, required IconData icon}) {
     return SwitchListTile(
